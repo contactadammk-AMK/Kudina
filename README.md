@@ -1,4 +1,4 @@
-# Kudina — Full Deployment Guide (Plain Language)
+# Kudina application — Full Deployment Guide (Plain Language)
 
 This is everything you need to take Kudina from "files on a computer" to "a real, working website people can use." No coding knowledge assumed — every step says exactly what to click and where to find it.
 
