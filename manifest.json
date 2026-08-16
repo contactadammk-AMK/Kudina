@@ -1,0 +1,20 @@
+{
+  "name": "Kudina — Your Business, Your Proof",
+  "short_name": "Kudina",
+  "description": "Log sales, track Susu savings, build a vitality score, and manage a wallet — built for Nigerian market traders.",
+  "start_url": "/app",
+  "scope": "/",
+  "id": "/app",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#131F35",
+  "theme_color": "#131F35",
+  "lang": "en-NG",
+  "categories": ["finance", "business", "productivity"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
