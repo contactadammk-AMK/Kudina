@@ -31,6 +31,6 @@
     { "source": "/lender", "destination": "/lender.html" }
   ],
   "crons": [
-    { "path": "/api/wallet/reconcile", "schedule": "*/15 * * * *" }
+    { "path": "/api/wallet/reconcile", "schedule": "*0 2 * * *" }
   ]
 }
