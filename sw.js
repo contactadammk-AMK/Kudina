@@ -1,51 +1,69 @@
-const CACHE_NAME = 'kudina-shell-v1';
+const CACHE_NAME = 'kudina-v2';
+
 const APP_SHELL = [
+  '/',
   '/app',
+  '/lender',
   '/manifest.json',
   '/icon-192.png',
-  '/icon-512.png'
+  '/icon-512.png',
+  '/icon-maskable-192.png',
+  '/icon-maskable-512.png'
 ];
+
+// Install
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => cache.addAll(APP_SHELL))
-      .catch((e) => console.error('sw install cache failed', e))
+      .then(() => self.skipWaiting())
   );
-  self.skipWaiting();
 });
 
+// Activate
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
-    )
+    caches.keys().then((cacheNames) =>
+      Promise.all(
+        cacheNames
+          .filter((name) => name !== CACHE_NAME)
+          .map((name) => caches.delete(name))
+      )
+    ).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
+// Fetch
 self.addEventListener('fetch', (event) => {
-  const url = new URL(event.request.url);
+  const request = event.request;
 
-  // Never intercept API calls — a cached wallet balance or ledger entry
-  // served while offline is worse than no data at all. Let these go
-  // straight to the network, normal browser offline handling applies.
-  if (url.pathname.startsWith('/api/')) return;
-
-  // Only handle same-origin GET requests; everything else passes through untouched.
-  if (event.request.method !== 'GET' || url.origin !== self.location.origin) return;
+  // Only handle GET requests
+  if (request.method !== 'GET') {
+    return;
+  }
 
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      const network = fetch(event.request)
-        .then((res) => {
-          if (res && res.ok) {
-            const copy = res.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
-          }
-          return res;
-        })
-        .catch(() => cached); // offline: fall back to whatever's cached, if anything
-      return cached || network;
-    })
+    fetch(request)
+      .then((response) => {
+        // Keep a copy of successful same-origin responses
+        if (
+          response &&
+          response.status === 200 &&
+          new URL(request.url).origin === self.location.origin
+        ) {
+          const responseClone = response.clone();
+
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(request, responseClone);
+          });
+        }
+
+        return response;
+      })
+      .catch(() => {
+        return caches.match(request).then((cachedResponse) => {
+          return cachedResponse || caches.match('/app');
+        });
+      })
   );
 });
