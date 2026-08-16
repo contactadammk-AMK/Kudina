@@ -417,23 +417,51 @@ const detectedOptEl = document.getElementById('opt'+detectedOS[0].toUpperCase()+
 if(detectedOptEl) detectedOptEl.classList.add('detected');
 
 let _deferredInstallPrompt = null;
-window.addEventListener('beforeinstallprompt', (e)=>{
-  e.preventDefault();
-  _deferredInstallPrompt = e;
+
+window.addEventListener('beforeinstallprompt', (event) => {
+  console.log('Kudina: install prompt available');
+
+  event.preventDefault();
+  _deferredInstallPrompt = event;
 });
 
-// One click, one action: Android installs directly if the browser offers
-// it; every other case just opens the real app — Safari's own Add to Home
-// Screen (iOS) or the plain web app (desktop) take it from there.
-function getApp(os){
-  if(os === 'android' && _deferredInstallPrompt){
-    _deferredInstallPrompt.prompt();
-    _deferredInstallPrompt.userChoice.finally(()=>{ _deferredInstallPrompt = null; });
+window.addEventListener('appinstalled', () => {
+  console.log('Kudina: app installed');
+  _deferredInstallPrompt = null;
+});
+
+async function getApp(os) {
+
+  // ANDROID
+  if (os === 'android') {
+
+    if (_deferredInstallPrompt) {
+
+      try {
+        await _deferredInstallPrompt.prompt();
+
+        const choice = await _deferredInstallPrompt.userChoice;
+
+        console.log('Kudina install result:', choice.outcome);
+
+        _deferredInstallPrompt = null;
+
+        return;
+
+      } catch (error) {
+        console.error('Kudina install prompt error:', error);
+      }
+    }
+
+    // Chrome has not made the install prompt available.
+    // Send the user to the app rather than doing nothing.
+    window.location.href = '/app';
     return;
   }
+
+  // iPhone / desktop
   window.location.href = '/app';
 }
-
 if('serviceWorker' in navigator){
   window.addEventListener('load', ()=>{ navigator.serviceWorker.register('/sw.js').catch(e=>console.error('sw register failed', e)); });
 }
