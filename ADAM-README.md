@@ -1,4 +1,4 @@
-# Kudina — Adam Readme (just follow along, in order)
+# Kudina application — Adam Readme (just follow along, in order)
 
 ## PART 1 — Get the site working
 
